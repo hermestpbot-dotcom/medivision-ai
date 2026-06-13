@@ -67,7 +67,7 @@ async def websocket_notifications(websocket: WebSocket):
     try:
         from jose import jwt, JWTError
         from app.core.config import settings
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.ALGORITHM])
         user_id = payload.get("sub")
         if not user_id:
             await websocket.close(code=4001, reason="Invalid token")

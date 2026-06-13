@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import logging
 import time
+from collections import defaultdict
 from app.core.config import settings
 from app.core.database import init_db, close_db
 from app.core.redis_client import init_redis, close_redis
@@ -19,6 +20,7 @@ from app.api.v1 import (
     analysis, chatbot, reports, appointments,
     notifications, analytics
 )
+from app.api.websocket import notifications as ws_notifications
 
 # Configure logging
 logging.basicConfig(
@@ -27,6 +29,32 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger("medivision")
+
+# Simple in-memory rate limiter (use Redis in production)
+_rate_limit_store: dict = defaultdict(list)
+RATE_LIMIT = 60  # requests per window
+RATE_WINDOW = 60  # seconds
+
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    """Rate limiting middleware — max 60 requests per minute per IP."""
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.time()
+    
+    # Clean old entries
+    _rate_limit_store[client_ip] = [
+        t for t in _rate_limit_store[client_ip] if now - t < RATE_WINDOW
+    ]
+    
+    if len(_rate_limit_store[client_ip]) >= RATE_LIMIT:
+        return JSONResponse(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            content={"detail": "Rate limit exceeded. Try again later."},
+        )
+    
+    _rate_limit_store[client_ip].append(now)
+    return await call_next(request)
 
 
 @asynccontextmanager
@@ -104,6 +132,9 @@ app.include_router(reports.router, prefix="/api/v1/reports", tags=["Reports"])
 app.include_router(appointments.router, prefix="/api/v1/appointments", tags=["Appointments"])
 app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["Notifications"])
 app.include_router(analytics.router, prefix="/api/v1/analytics", tags=["Analytics"])
+
+# WebSocket Routes
+app.add_api_websocket_route("/ws/notifications", ws_notifications.websocket_notifications, name="websocket_notifications")
 
 
 @app.get("/api/v1/health", tags=["Health"])

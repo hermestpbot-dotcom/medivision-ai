@@ -18,7 +18,10 @@ async def init_db():
     """Initialize MongoDB connection and Beanie ODM."""
     global motor_client
     motor_client = AsyncIOMotorClient(
-        settings.MODB
+        settings.MONGODB_URL,
+        serverSelectionTimeoutMS=5000,
+        connectTimeoutMS=5000,
+        maxPoolSize=10,
     )
     database = motor_client.get_database()
 

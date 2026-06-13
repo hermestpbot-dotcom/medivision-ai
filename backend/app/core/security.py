@@ -50,7 +50,7 @@ def create_access_token(
         "iat": datetime.utcnow(),
         "type": "access"
     })
-    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.ALGORITHM)
 
 
 def create_refresh_token(data: dict) -> str:
@@ -62,7 +62,7 @@ def create_refresh_token(data: dict) -> str:
         "iat": datetime.utcnow(),
         "type": "refresh"
     })
-    return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return jwt.encode(to_encode, settings.JWT_REFRESH_SECRET, algorithm=settings.ALGORITHM)
 
 
 def create_verification_token(email: str) -> str:
@@ -70,7 +70,7 @@ def create_verification_token(email: str) -> str:
     expire = datetime.utcnow() + timedelta(hours=24)
     return jwt.encode(
         {"email": email, "exp": expire, "type": "verification"},
-        settings.SECRET_KEY,
+        settings.JWT_SECRET,
         algorithm=settings.ALGORITHM,
     )
 
@@ -80,7 +80,7 @@ def create_password_reset_token(email: str) -> str:
     expire = datetime.utcnow() + timedelta(hours=1)
     return jwt.encode(
         {"email": email, "exp": expire, "type": "password_reset"},
-        settings.SECRET_KEY,
+        settings.JWT_SECRET,
         algorithm=settings.ALGORITHM,
     )
 
@@ -93,7 +93,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.ALGORITHM])
         user_id: str = payload.get("sub")
         token_type: str = payload.get("type")
         if user_id is None or token_type != "access":

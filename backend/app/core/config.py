@@ -11,47 +11,41 @@ class Settings(BaseSettings):
     APP_NAME: str = "MediVision AI"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = False
-    SECRET_KEY: str = "change-this-to-a-secure-secret-key-in-production"
 
-    # Database
-    MONGODB_URL: str = "mongodb://localhost:27017"
-    MONGODB_DB_NAME: str = "medivision_ai"
-
-    # Redis
-    REDIS_URL: str = "redis://localhost:6379"
-
-    # JWT
+    # Security
+    SECRET_KEY: str = "change-this-to-a-secure-secret-key-in-production-min-32-chars"
+    JWT_SECRET: str = "jwt-secret-change-me-in-production"
+    JWT_REFRESH_SECRET: str = "jwt-refresh-secret-change-me"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
-    # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:3001"]
+    # Database
+    MONGODB_URL: str = "mongodb://localhost:27017/medivision"
+    REDIS_URL: str = "redis://localhost:6379/0"
+
+    # CORS & Hosts
+    CORS_ORIGINS: List[str] = ["*"]
     ALLOWED_HOSTS: List[str] = ["*"]
 
-    # Storage
-    UPLOAD_DIR: str = "uploads"
-    MAX_FILE_SIZE: int = 52428800  # 50MB
+    # Storage (optional)
     CLOUDINARY_CLOUD_NAME: str = ""
     CLOUDINARY_API_KEY: str = ""
     CLOUDINARY_API_SECRET: str = ""
     AWS_ACCESS_KEY_ID: str = ""
     AWS_SECRET_ACCESS_KEY: str = ""
-    AWS_S3_BUCKET: str = ""
-    AWS_REGION: str = "us-east-1"
+    AWS_STORAGE_BUCKET: str = ""
+    AWS_REGION: str = "ap-south-1"
 
-    # AI Model Settings
-    AI_MODEL_CACHE_DIR: str = "./model_cache"
-
-    # Rate Limiting
-    RATE_LIMIT_PER_MINUTE: int = 60
-
-    # Frontend
-    FRONTEND_URL: str = "http://localhost:3000"
+    # Email (optional)
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USERNAME: str = ""
+    SMTP_PASSWORD: str = ""
 
     class Config:
         env_file = ".env"
-        case_sensitive = True
+        env_file_encoding = "utf-8"
 
 
 @lru_cache()

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://your-domain.com/sitemap.xml
+
+# Disallow dashboard/auth pages
+Disallow: /dashboard/
+Disallow: /login/
+Disallow: /signup/
+Disallow: /api/

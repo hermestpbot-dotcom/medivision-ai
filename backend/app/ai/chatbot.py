@@ -8,6 +8,13 @@ from typing import List, Optional
 
 logger = logging.getLogger("medivision.ai.chatbot")
 
+# Optional torch import for model-based responses
+try:
+    import torch
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+
 # Medical knowledge base for fallback responses
 MEDICAL_KNOWLEDGE = {
     "heart disease": {

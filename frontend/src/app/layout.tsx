@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
+import { ThemeScript } from "./theme-script";
 
 export const metadata: Metadata = {
   title: "MediVision AI - AI-Powered Heart Disease Detection",
@@ -12,6 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
+        <ThemeScript />
         <Providers>{children}</Providers>
       </body>
     </html>
